@@ -1,9 +1,13 @@
 import Cocoa
 import SmallJSONParser
+import PlaygroundSupport
+PlaygroundPage.current.needsIndefiniteExecution = true
 
 let example =
 """
 {
+"updatedAt": "2013-07-21T19:32:00Z",
+"createAt": "2012-04-23T18:25:43.511Z",
 "isAdmin": true,
 "coord": {
 "lon": 116.4,
@@ -62,4 +66,20 @@ let e: Array<String> = json.base
 let isAdmin: Bool = json.isAdmin
 let isAdminString: String = json.isAdmin
 let isAdminJSON = json.isAdmin
+let updateDate: Date = json.updatedAt
+let createDate: Date = json.createAt
+let updateDateString: String = json.updatedAt
 json.name
+json.isAdmin.bool
+
+let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1")!
+let request = URLSession.shared.dataTask(with: url) { (data, _, _) in
+    if let data = data {
+        let json = JSON.parse(data: data)
+        let id: Int = json.id
+        let title: String = json.title
+        let completed: Bool = json.completed
+        print("id: \(id), \ntitle: \(title), \ncompleted: \(completed)")
+    }
+}
+request.resume()

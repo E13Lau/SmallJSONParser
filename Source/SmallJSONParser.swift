@@ -86,6 +86,8 @@ public enum JSON {
                 return json.doubleValue as! T
             case String(describing: Bool.self):
                 return json.boolValue as! T
+            case String(describing: Date.self):
+                return json.dateValue as! T
             default:
                 return T.init()
             }
@@ -105,6 +107,8 @@ public enum JSON {
                 return json.doubleValue as! T
             case String(describing: Bool.self):
                 return json.boolValue as! T
+            case String(describing: Date.self):
+                return json.dateValue as! T
             default:
                 return T.init()
             }
@@ -172,10 +176,29 @@ extension JSON {
         if case .boolValue(let value) = self {
             return value
         }
-        return intValue > 0
+        return false
     }
     public var boolValue: Bool {
         return bool ?? false
+    }
+}
+
+extension JSON {
+    public var date: Date? {
+        if let str = string {
+            let formatter = ISO8601DateFormatter()
+            if let date = formatter.date(from: str) {
+                return date
+            }
+            formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+            if let date = formatter.date(from: str) {
+                return date
+            }
+        }
+        return nil
+    }
+    public var dateValue: Date {
+        return date ?? Date()
     }
 }
 
@@ -211,3 +234,4 @@ extension String: HaveInitMethod { }
 extension Array: HaveInitMethod { }
 extension Dictionary: HaveInitMethod { }
 extension Bool: HaveInitMethod { }
+extension Date: HaveInitMethod { }

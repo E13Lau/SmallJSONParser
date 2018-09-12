@@ -5,7 +5,7 @@
 //  Created by Benq on 2018/9/12.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 //! Project version number for SmallJSONParser.
 FOUNDATION_EXPORT double SmallJSONParserVersionNumber;

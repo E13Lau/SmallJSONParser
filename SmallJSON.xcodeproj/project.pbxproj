@@ -24,6 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7E951C6721495C030071636C /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BDF3C72521491342003C855F /* SmallJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallJSONParser.swift; sourceTree = "<group>"; };
 		BDF3C77721491C30003C855F /* SmallJSONParser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SmallJSONParser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF3C77921491C33003C855F /* SmallJSONParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SmallJSONParser.h; sourceTree = "<group>"; };
@@ -55,6 +56,7 @@
 		BDF3C6A721490FA4003C855F = {
 			isa = PBXGroup;
 			children = (
+				7E951C6721495C030071636C /* MyPlayground.playground */,
 				BDF3C72421491342003C855F /* Source */,
 				BDF3C77821491C31003C855F /* SmallJSONParser */,
 				BDF3C78521491E5A003C855F /* SmallJSONParserTests */,

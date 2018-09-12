@@ -53,85 +53,6 @@ public enum JSON {
         }
     }
     
-    public var string: String? {
-        if case .stringValue(let value) = self {
-            return value
-        }
-        if case .intValue(let value) = self {
-            return String(value)
-        }
-        if case .doubleValue(let value) = self {
-            return String(value)
-        }
-        return nil
-    }
-    //if nil, return ""
-    public var stringValue: String {
-        return string ?? ""
-    }
-    
-    public var int: Int? {
-        if case .intValue(let value) = self {
-            return value
-        }
-        if case .doubleValue(let value) = self {
-            return Int(value)
-        }
-        if case .stringValue(let value) = self {
-            return Int(value)
-        }
-        return nil
-    }
-    public var intValue: Int {
-        return int ?? 0
-    }
-    
-    public var double: Double? {
-        if case .doubleValue(let value) = self {
-            return value
-        }
-        if case .intValue(let value) = self {
-            return Double(value)
-        }
-        if case .stringValue(let value) = self {
-            return Double(value)
-        }
-        return nil
-    }
-    public var doubleValue: Double {
-        return double ?? 0.0
-    }
-    
-    public var bool: Bool? {
-        if case .boolValue(let value) = self {
-            return value
-        }
-        return intValue > 0
-    }
-    public var boolValue: Bool {
-        return bool ?? false
-    }
-    
-    public var array: Array<JSON>? {
-        if case .arrayValue(let value) = self {
-            return value
-        }
-        return nil
-    }
-    public var arrayValue: Array<JSON> {
-        return array ?? []
-    }
-    
-    public var dictionary: Dictionary<String, JSON>? {
-        if case .dictionaryValue(let dict) = self {
-            return dict
-        }
-        return nil
-    }
-    public var dictionaryValue: Dictionary<String, JSON> {
-        return dictionary ?? [:]
-    }
-    
     public subscript(index: Int) -> JSON {
         if case .arrayValue(let arr) = self {
             return index < arr.count ? arr[index] : JSON.null
@@ -153,11 +74,140 @@ public enum JSON {
         return JSON.null
     }
     
-    public subscript<T>(member: String) -> T? {
-        switch T.self {
-        case is Int:
-            return self.intValue as? T
-        default: return nil
+    public subscript<T: HaveInitMethod>(dynamicMember member: String) -> T {
+        if case .dictionaryValue(let dict) = self {
+            let json = dict[member] ?? JSON.null
+            switch String(describing: T.self) {
+            case String(describing: Int.self):
+                return json.intValue as! T
+            case String(describing: String.self):
+                return json.stringValue as! T
+            case String(describing: Double.self):
+                return json.doubleValue as! T
+            case String(describing: Bool.self):
+                return json.boolValue as! T
+            default:
+                return T.init()
+            }
         }
+        return T.init()
+    }
+    
+    public subscript<T: HaveInitMethod>(index: Int) -> T {
+        if case .arrayValue(let arr) = self {
+            let json = index < arr.count ? arr[index] : JSON.null
+            switch String(describing: T.self) {
+            case String(describing: Int.self):
+                return json.intValue as! T
+            case String(describing: String.self):
+                return json.stringValue as! T
+            case String(describing: Double.self):
+                return json.doubleValue as! T
+            case String(describing: Bool.self):
+                return json.boolValue as! T
+            default:
+                return T.init()
+            }
+        }
+        return T.init()
     }
 }
+
+extension JSON {
+    public var string: String? {
+        if case .stringValue(let value) = self {
+            return value
+        }
+        if case .intValue(let value) = self {
+            return String(value)
+        }
+        if case .doubleValue(let value) = self {
+            return String(value)
+        }
+        return nil
+    }
+    public var stringValue: String {
+        return string ?? ""
+    }
+}
+
+extension JSON {
+    public var int: Int? {
+        if case .intValue(let value) = self {
+            return value
+        }
+        if case .doubleValue(let value) = self {
+            return Int(value)
+        }
+        if case .stringValue(let value) = self {
+            return Int(value)
+        }
+        return nil
+    }
+    public var intValue: Int {
+        return int ?? 0
+    }
+}
+
+extension JSON {
+    public var double: Double? {
+        if case .doubleValue(let value) = self {
+            return value
+        }
+        if case .intValue(let value) = self {
+            return Double(value)
+        }
+        if case .stringValue(let value) = self {
+            return Double(value)
+        }
+        return nil
+    }
+    public var doubleValue: Double {
+        return double ?? 0.0
+    }
+}
+
+extension JSON {
+    public var bool: Bool? {
+        if case .boolValue(let value) = self {
+            return value
+        }
+        return intValue > 0
+    }
+    public var boolValue: Bool {
+        return bool ?? false
+    }
+}
+
+extension JSON {
+    public var array: Array<JSON>? {
+        if case .arrayValue(let value) = self {
+            return value
+        }
+        return nil
+    }
+    public var arrayValue: Array<JSON> {
+        return array ?? []
+    }
+    
+    public var dictionary: Dictionary<String, JSON>? {
+        if case .dictionaryValue(let dict) = self {
+            return dict
+        }
+        return nil
+    }
+    public var dictionaryValue: Dictionary<String, JSON> {
+        return dictionary ?? [:]
+    }
+}
+
+public protocol HaveInitMethod {
+    init()
+}
+
+extension Int: HaveInitMethod { }
+extension Double: HaveInitMethod { }
+extension String: HaveInitMethod { }
+extension Array: HaveInitMethod { }
+extension Dictionary: HaveInitMethod { }
+extension Bool: HaveInitMethod { }

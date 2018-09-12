@@ -25,6 +25,8 @@
 
 /* Begin PBXFileReference section */
 		7E951C6721495C030071636C /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7EE00ABB2149837200F94CAD /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		7EE00ABC2149837200F94CAD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BDF3C72521491342003C855F /* SmallJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallJSONParser.swift; sourceTree = "<group>"; };
 		BDF3C77721491C30003C855F /* SmallJSONParser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SmallJSONParser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF3C77921491C33003C855F /* SmallJSONParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SmallJSONParser.h; sourceTree = "<group>"; };
@@ -56,6 +58,8 @@
 		BDF3C6A721490FA4003C855F = {
 			isa = PBXGroup;
 			children = (
+				7EE00ABB2149837200F94CAD /* LICENSE */,
+				7EE00ABC2149837200F94CAD /* README.md */,
 				7E951C6721495C030071636C /* MyPlayground.playground */,
 				BDF3C72421491342003C855F /* Source */,
 				BDF3C77821491C31003C855F /* SmallJSONParser */,

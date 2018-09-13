@@ -73,14 +73,14 @@ json.name
 json.isAdmin.bool
 json.main.wind.deg.intValue
 
-//let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1")!
-//let request = URLSession.shared.dataTask(with: url) { (data, _, _) in
-//    if let data = data {
-//        let json = JSON.parse(data: data)
-//        let id: Int = json.id
-//        let title: String = json.title
-//        let completed: Bool = json.completed
-//        print("id: \(id), \ntitle: \(title), \ncompleted: \(completed)")
-//    }
-//}
-//request.resume()
+let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1")!
+let request = URLSession.shared.dataTask(with: url) { (data, _, _) in
+    if let data = data {
+        let json = JSON.parse(data: data)
+        let id: Int = json.id
+        let title: String = json.title
+        let completed: Bool = json.completed
+        print("id: \(id), \ntitle: \(title), \ncompleted: \(completed)")
+    }
+}
+request.resume()

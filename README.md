@@ -8,11 +8,6 @@ A lightweight and small JSON parser for Swift.
 
 Based on "Dynamic Member Lookup" Types.Learn more here [Introduce User-defined "Dynamic Member Lookup" Types](https://github.com/apple/swift-evolution/blob/master/proposals/0195-dynamic-member-lookup.md).
 
-"coord": {
-"lon": 116.4,
-"lat": 39.91
-},
-
 ```swift
 let string = "{\"id\": 923, \"name\": \"hello\", \"coord\":{\"lon\": 116.4, \"lat\": 39.91}}"
 let json = JSON.parse(string: string)
@@ -33,10 +28,9 @@ let lon: Double = json.coord.lon    //  116.4
 - Run `carthage update`.
 - Link your app with `SmallJSONParser.framework` in `Carthage/Build`.
 
+#### [CocoaPods](https://github.com/cocoapods/cocoapods)
 
 (coming soon)
-
-#### [CocoaPods](https://github.com/cocoapods/cocoapods)
 
 - Insert `pod 'SmallJSONParser'` to your Podfile.
 - Run `pod install`.

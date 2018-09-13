@@ -87,7 +87,11 @@ public enum JSON {
             case String(describing: Bool.self):
                 return json.boolValue as! T
             case String(describing: Date.self):
-                return json.dateValue as! T
+                if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
+                    return json.dateValue as! T
+                } else {
+                    return json.stringValue as! T
+                }
             default:
                 return T.init()
             }
@@ -108,7 +112,11 @@ public enum JSON {
             case String(describing: Bool.self):
                 return json.boolValue as! T
             case String(describing: Date.self):
-                return json.dateValue as! T
+                if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
+                    return json.dateValue as! T
+                } else {
+                    return json.stringValue as! T
+                }
             default:
                 return T.init()
             }
@@ -183,6 +191,7 @@ extension JSON {
     }
 }
 
+@available(iOS 10.0, tvOS 11.0, OSX 10.13, *)
 extension JSON {
     public var date: Date? {
         if let str = string {
@@ -190,7 +199,11 @@ extension JSON {
             if let date = formatter.date(from: str) {
                 return date
             }
-            formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+            if #available(iOS 11.0, *) {
+                formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+            } else {
+                formatter.formatOptions = [.withInternetDateTime]
+            }
             if let date = formatter.date(from: str) {
                 return date
             }

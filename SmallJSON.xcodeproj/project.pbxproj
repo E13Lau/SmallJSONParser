@@ -27,6 +27,7 @@
 		7E951C6721495C030071636C /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EE00ABB2149837200F94CAD /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		7EE00ABC2149837200F94CAD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		BD79EB662149FE4600559ACB /* SmallJSONParser.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = SmallJSONParser.podspec; sourceTree = "<group>"; };
 		BDF3C72521491342003C855F /* SmallJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallJSONParser.swift; sourceTree = "<group>"; };
 		BDF3C77721491C30003C855F /* SmallJSONParser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SmallJSONParser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDF3C77921491C33003C855F /* SmallJSONParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SmallJSONParser.h; sourceTree = "<group>"; };
@@ -59,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				7EE00ABB2149837200F94CAD /* LICENSE */,
+				BD79EB662149FE4600559ACB /* SmallJSONParser.podspec */,
 				7EE00ABC2149837200F94CAD /* README.md */,
 				7E951C6721495C030071636C /* MyPlayground.playground */,
 				BDF3C72421491342003C855F /* Source */,
@@ -317,7 +319,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;
@@ -397,7 +399,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 4.0;

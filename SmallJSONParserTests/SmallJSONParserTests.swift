@@ -19,21 +19,21 @@ class SmallJSONParserTests: XCTestCase {
     },
     "weather": [
         {
-        "id": 520,
-        "main": "Rain",
-        "icon": "09d"
+            "id": 520,
+            "main": "Rain",
+            "icon": "09d"
         },
         {
-        "id": 701,
-        "main": "Mist",
-        "icon": "50d"
+            "id": 701,
+            "main": "Mist",
+            "icon": "50d"
         }
     ],
     "base": "stations",
     "isAdmin": true,
 }
 """
-        let json = JSON.parse(string: example)
+        let json = JSON.stringValue(example).json
         
         XCTAssertEqual(json.coord.lon.doubleValue, 116.4)
         XCTAssertEqual(json.weather[0].id.intValue, 520)

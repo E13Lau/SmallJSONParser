@@ -2,126 +2,113 @@ import Foundation
 
 @dynamicMemberLookup
 public enum JSON {
+    case any(CanReformToJSONType)
+    case dataValue(Data)
     case stringValue(String)
     case intValue(Int)
     case boolValue(Bool)
     case doubleValue(Double)
-    case any(Any)
-    case arrayValue(Array<JSON>)
-    case dictionaryValue(Dictionary<String, JSON>)
+    case dateValue(Date)
+    case dictionary(Dictionary<String, Any>)
+    case array(Array<Any>)
     case null
-    
-    public static func parse(data: Data) -> JSON {
-        return JSON.parse(data as Any)
-    }
-    
-    public static func parse(string: String) -> JSON {
-        return JSON.parse(data: string.data(using: .utf8) ?? Data())
-    }
-    
-    fileprivate static func parse(_ value: Any) -> JSON {
-        switch value {
-        case is Dictionary<String, JSON>:
-            return JSON.dictionaryValue(value as! Dictionary<String, JSON>)
-        case is Array<JSON>:
-            return JSON.arrayValue(value as! Array<JSON>)
-        case is Data:
-            if let dict = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) as? Dictionary<String, Any> {
-                return JSON.parse(dict as Any)
-            }
-            if let array = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) as? Array<Any> {
-                return JSON.parse(array as Any)
-            }
-            return JSON.any(value)
-        case is Dictionary<String, Any>:
-            let dict = value as! Dictionary<String, Any>
-            let d = dict.mapValues({ JSON.parse($0) })
-            return JSON.parse(d)
-        case is Array<Any>:
-            let arr = (value as! Array<Any>).map({ JSON.parse($0) })
-            return JSON.parse(arr)
-        case is Int:
-            return JSON.intValue(value as! Int)
-        case is String:
-            return JSON.stringValue(value as! String)
-        case is Bool:
-            return JSON.boolValue(value as! Bool)
-        case is Double:
-            return JSON.doubleValue(value as! Double)
-        default:
-            return JSON.any(value)
-        }
-    }
-    
+}
+
+extension JSON {
     public subscript(index: Int) -> JSON {
-        if case .arrayValue(let arr) = self {
-            return index < arr.count ? arr[index] : JSON.null
+        if case .array(let arr) = self {
+            guard index < arr.count else { return JSON.null }
+            let value = arr[index]
+            guard value is CanReformToJSONType else { return JSON.null }
+            return (value as! CanReformToJSONType).refmerToJSON()
         }
         return JSON.null
     }
     
     public subscript(key: String) -> JSON {
-        if case .dictionaryValue(let dict) = self {
-            return dict[key] ?? JSON.null
+        if case .dictionary(let dict) = self {
+            guard let value = dict[key] else { return JSON.null }
+            guard value is CanReformToJSONType else { return JSON.null }
+            return (value as! CanReformToJSONType).refmerToJSON()
         }
         return JSON.null
     }
     
     public subscript(dynamicMember member: String) -> JSON {
-        if case .dictionaryValue(let dict) = self {
-            return dict[member] ?? JSON.null
+        if case .dictionary(let dict) = self {
+            guard let value = dict[member] else { return JSON.null }
+            guard value is CanReformToJSONType else { return JSON.null }
+            return (value as! CanReformToJSONType).refmerToJSON()
         }
         return JSON.null
     }
+}
+
+extension JSON {
+    public subscript<T: CanReformToJSONType>(index: Int) -> T {
+        if case .array(let arr) = self {
+            guard index < arr.count else { return T.init() }
+            let value = arr[index]
+            guard value is CanReformToJSONType else { return T.init() }
+            return (value as? T) ?? T.init()
+        }
+
+        return T.init()
+    }
     
-    public subscript<T: HaveInitMethod>(dynamicMember member: String) -> T {
-        if case .dictionaryValue(let dict) = self {
-            let json = dict[member] ?? JSON.null
-            switch String(describing: T.self) {
-            case String(describing: Int.self):
-                return json.intValue as! T
-            case String(describing: String.self):
-                return json.stringValue as! T
-            case String(describing: Double.self):
-                return json.doubleValue as! T
-            case String(describing: Bool.self):
-                return json.boolValue as! T
-            case String(describing: Date.self):
-                if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
-                    return json.dateValue as! T
-                } else {
-                    return json.stringValue as! T
-                }
-            default:
-                return T.init()
-            }
+    public subscript<T: CanReformToJSONType>(key: String) -> T {
+        if case .dictionary(let dict) = self {
+            guard let value = dict[key] else { return T.init() }
+            return (value as? T) ?? T.init()
         }
         return T.init()
     }
     
-    public subscript<T: HaveInitMethod>(index: Int) -> T {
-        if case .arrayValue(let arr) = self {
-            let json = index < arr.count ? arr[index] : JSON.null
-            switch String(describing: T.self) {
-            case String(describing: Int.self):
-                return json.intValue as! T
-            case String(describing: String.self):
-                return json.stringValue as! T
-            case String(describing: Double.self):
-                return json.doubleValue as! T
-            case String(describing: Bool.self):
-                return json.boolValue as! T
-            case String(describing: Date.self):
-                if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
-                    return json.dateValue as! T
-                } else {
-                    return json.stringValue as! T
-                }
-            default:
-                return T.init()
-            }
+    public subscript<T: CanReformToJSONType>(dynamicMember member: String) -> T {
+        if case .dictionary(let dict) = self {
+            guard let value = dict[member] else { return T.init() }
+            return (value as? T) ?? T.init()
         }
         return T.init()
+    }
+}
+
+extension JSON {
+    public var jsonValue: JSON {
+        switch self {
+        case .any(let value):
+            switch value {
+            case is String:
+                if let data = (value as! String).data(using: .utf8) {
+                    return JSON.any(data).jsonValue
+                }
+                return value.refmerToJSON()
+            case is Data:
+                if let jsonObject = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) {
+                    if let dict = jsonObject as? Dictionary<String, Any> {
+                        return dict.refmerToJSON()
+                    }
+                    if let arr = jsonObject as? Array<Any> {
+                        return arr.refmerToJSON()
+                    }
+                }
+                return value.refmerToJSON()
+            default:
+                return value.refmerToJSON()
+            }
+        case .dictionary(let value):
+            return value.refmerToJSON()
+        case .array(let value):
+            return value.refmerToJSON()
+        case .stringValue(let value):
+            if let data = (value).data(using: .utf8) {
+                return JSON.any(data).jsonValue
+            }
+            return value.refmerToJSON()
+        case .dataValue(let value):
+            return JSON.any(value).jsonValue
+        default: return self
+        }
     }
 }
 
@@ -184,6 +171,9 @@ extension JSON {
         if case .boolValue(let value) = self {
             return value
         }
+        if case .intValue(let value) = self {
+            return value > 0
+        }
         return false
     }
     public var boolValue: Bool {
@@ -194,6 +184,9 @@ extension JSON {
 @available(iOS 10.0, tvOS 11.0, OSX 10.13, *)
 extension JSON {
     public var date: Date? {
+        if case .dateValue(let value) = self {
+            return value
+        }
         if let str = string {
             let formatter = ISO8601DateFormatter()
             if let date = formatter.date(from: str) {
@@ -216,35 +209,126 @@ extension JSON {
 }
 
 extension JSON {
-    public var array: Array<JSON>? {
-        if case .arrayValue(let value) = self {
+    public var array: Array<Any>? {
+        if case .array(let value) = self {
             return value
         }
         return nil
     }
-    public var arrayValue: Array<JSON> {
+    public var arrayValue: Array<Any> {
         return array ?? []
     }
-    
-    public var dictionary: Dictionary<String, JSON>? {
-        if case .dictionaryValue(let dict) = self {
+}
+
+extension JSON {
+    public var data: Data? {
+        if case .dataValue(let value) = self {
+            return value
+        }
+        return nil
+    }
+    public var dataValue: Data {
+        return data ?? Data()
+    }
+}
+
+extension JSON {
+    public var dictionary: Dictionary<String, Any>? {
+        if case .dictionary(let dict) = self {
             return dict
         }
         return nil
     }
-    public var dictionaryValue: Dictionary<String, JSON> {
+    public var dictionaryValue: Dictionary<String, Any> {
         return dictionary ?? [:]
     }
 }
 
-public protocol HaveInitMethod {
+public protocol CanReformToJSONType {
     init()
+    static func refmerWith(json: JSON) -> Self
+    func refmerToJSON() -> JSON
+}
+extension Int: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> Int {
+        return json.intValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.intValue(self)
+    }
+}
+extension Double: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> Double {
+        return json.doubleValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.doubleValue(self)
+    }
+}
+extension String: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> String {
+        return json.stringValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.stringValue(self)
+    }
+}
+extension Array: CanReformToJSONType where Element == Any {
+    public static func refmerWith(json: JSON) -> Array<Element> {
+        return json.arrayValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.array(self)
+    }
+}
+extension Dictionary: CanReformToJSONType where Value == Any, Key == String {
+    public static func refmerWith(json: JSON) -> Dictionary<Key, Value> {
+        return json.dictionaryValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.dictionary(self)
+    }
 }
 
-extension Int: HaveInitMethod { }
-extension Double: HaveInitMethod { }
-extension String: HaveInitMethod { }
-extension Array: HaveInitMethod { }
-extension Dictionary: HaveInitMethod { }
-extension Bool: HaveInitMethod { }
-extension Date: HaveInitMethod { }
+extension Bool: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> Bool {
+        return json.boolValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.boolValue(self)
+    }
+}
+extension Data: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> Data {
+        return json.dataValue
+    }
+    
+    public func refmerToJSON() -> JSON {
+        return JSON.dataValue(self)
+    }
+}
+
+extension Date: CanReformToJSONType {
+    public static func refmerWith(json: JSON) -> Date {
+        if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
+            return json.dateValue
+        } else {
+            if let timestamp = json.int {
+                return Date(timeIntervalSince1970: Double(timestamp))
+            }
+            if let timestampWithSecond = json.double {
+                return Date(timeIntervalSince1970: timestampWithSecond)
+            }
+            return Date()
+        }
+    }
+    public func refmerToJSON() -> JSON {
+        return JSON.dateValue(self)
+    }
+}

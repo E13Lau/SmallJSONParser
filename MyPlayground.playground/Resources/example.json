@@ -1,0 +1,49 @@
+{
+    "updatedAt": "2013-07-21T19:32:00Z",
+    "createAt": "2012-04-23T18:25:43.511Z",
+    "isAdmin": true,
+    "coord": {
+        "lon": 116.4,
+        "lat": 39.91
+    },
+    "weather": [
+                {
+                "id": 520,
+                "main": "Rain",
+                "icon": "09d"
+                },
+                {
+                "id": 701,
+                "main": "Mist",
+                "icon": "50d"
+                }
+                ],
+    "base": "stations",
+    "main": {
+        "temp": 300.39,
+        "pressure": 1008,
+        "humidity": 94,
+        "temp_min": 297.15,
+        "wind": {
+            "speed": 1,
+            "deg": 140
+        },
+        "temp_max": 303.71
+    },
+    "visibility": 2300,
+    "clouds": {
+        "all": 75
+    },
+    "dt": 1437281131,
+    "sys": {
+        "type": 1,
+        "id": 7405,
+        "message": 0.0136,
+        "country": "CN",
+        "sunrise": 1437253268,
+        "sunset": 1437305986
+    },
+    "id": 1816670,
+    "name": "Beijing",
+    "cod": 200
+}

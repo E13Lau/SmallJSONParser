@@ -2,7 +2,7 @@ import Foundation
 
 @dynamicMemberLookup
 public enum JSON {
-    case any(CanReformToJSONType)
+    case any(Any)
     case dataValue(Data)
     case stringValue(String)
     case intValue(Int)
@@ -15,12 +15,33 @@ public enum JSON {
 }
 
 extension JSON {
+    
+    public static func parse(_ jsonString: String) -> JSON {
+        if let data = jsonString.data(using: .utf8) {
+            return JSON.parse(data)
+        }
+        return JSON.null
+    }
+    
+    public static func parse(_ jsonData: Data) -> JSON {
+        if let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) {
+            if let dict = jsonObject as? Dictionary<String, Any> {
+                return dict.refmerToJSON()
+            }
+            if let arr = jsonObject as? Array<Any> {
+                return arr.refmerToJSON()
+            }
+        }
+        return JSON.null
+    }
+}
+
+extension JSON {
     public subscript(index: Int) -> JSON {
         if case .array(let arr) = self {
             guard index < arr.count else { return JSON.null }
             let value = arr[index]
-            guard value is CanReformToJSONType else { return JSON.null }
-            return (value as! CanReformToJSONType).refmerToJSON()
+            return JSON.any(value).jsonValue
         }
         return JSON.null
     }
@@ -28,8 +49,7 @@ extension JSON {
     public subscript(key: String) -> JSON {
         if case .dictionary(let dict) = self {
             guard let value = dict[key] else { return JSON.null }
-            guard value is CanReformToJSONType else { return JSON.null }
-            return (value as! CanReformToJSONType).refmerToJSON()
+            return JSON.any(value).jsonValue
         }
         return JSON.null
     }
@@ -37,8 +57,7 @@ extension JSON {
     public subscript(dynamicMember member: String) -> JSON {
         if case .dictionary(let dict) = self {
             guard let value = dict[member] else { return JSON.null }
-            guard value is CanReformToJSONType else { return JSON.null }
-            return (value as! CanReformToJSONType).refmerToJSON()
+            return JSON.any(value).jsonValue
         }
         return JSON.null
     }
@@ -78,23 +97,24 @@ extension JSON {
         switch self {
         case .any(let value):
             switch value {
+            case is Int:
+                return (value as! Int).refmerToJSON()
             case is String:
-                if let data = (value as! String).data(using: .utf8) {
-                    return JSON.any(data).jsonValue
-                }
-                return value.refmerToJSON()
+                return (value as! String).refmerToJSON()
             case is Data:
-                if let jsonObject = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) {
-                    if let dict = jsonObject as? Dictionary<String, Any> {
-                        return dict.refmerToJSON()
-                    }
-                    if let arr = jsonObject as? Array<Any> {
-                        return arr.refmerToJSON()
-                    }
-                }
-                return value.refmerToJSON()
+                return (value as! Data).refmerToJSON()
+            case is Double:
+                return (value as! Double).refmerToJSON()
+            case is Array<Any>:
+                return (value as! Array<Any>).refmerToJSON()
+            case is Dictionary<String, Any>:
+                return (value as! Dictionary<String, Any>).refmerToJSON()
+            case is Bool:
+                return (value as! Bool).refmerToJSON()
+            case is Date:
+                return (value as! Date).refmerToJSON()
             default:
-                return value.refmerToJSON()
+                return JSON.null
             }
         case .dictionary(let value):
             return value.refmerToJSON()

@@ -33,7 +33,7 @@ class SmallJSONParserTests: XCTestCase {
     "isAdmin": true,
 }
 """
-        let json = JSON.stringValue(example).json
+        let json = JSON.parse(example)
         
         XCTAssertEqual(json.coord.lon.doubleValue, 116.4)
         XCTAssertEqual(json.weather[0].id.intValue, 520)

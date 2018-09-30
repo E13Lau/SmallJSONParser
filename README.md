@@ -10,7 +10,7 @@ Based on "Dynamic Member Lookup" Types.Learn more here [Introduce User-defined "
 
 ```swift
 let string = "{\"id\": 923, \"name\": \"hello\", \"coord\":{\"lon\": 116.4, \"lat\": 39.91}}"
-let json = JSON.parse(string: string)
+let json = JSON.parse(string)
 let id = json.id.intValue    //   923
 let name: String = json.name    //   hello
 let lon: Double = json.coord.lon    //  116.4

@@ -7,7 +7,7 @@ let url = URL(string: "https://jsonplaceholder.typicode.com/todos/1")!
 let request = URLSession.shared.dataTask(with: url) { (data, _, _) in
     if let data = data {
         let startP = CACurrentMediaTime()
-        let json = JSON.any(data).jsonValue
+        let json = JSON.parse(data)
         let endP = CACurrentMediaTime()
         print("\(endP - startP)")
         let id: Int = json.id
@@ -24,7 +24,7 @@ let content = String(data: contentData, encoding: .utf8)!
 
 let start = CACurrentMediaTime()
 //let json = JSON.any(example).json
-let json = JSON.any(content).jsonValue
+let json = JSON.parse(content)
 let end = CACurrentMediaTime()
 print("\(end - start)")
 let name: String = json.name
@@ -43,15 +43,15 @@ json.name
 json.isAdmin.bool
 json.main.wind.deg.intValue
 json.main.stringValue
+print(json.weather)
 
 
-
-//let example2Path = Bundle.main.path(forResource: "example2", ofType: "json")!
-//let example2Data = FileManager.default.contents(atPath: example2Path)!
-//let otherstart = CACurrentMediaTime()
-//let j = JSON.dataValue(example2Data).json
-//let otherend = CACurrentMediaTime()
-//print("\(otherend - otherstart)")
+let example2Path = Bundle.main.path(forResource: "example2", ofType: "json")!
+let example2Data = FileManager.default.contents(atPath: example2Path)!
+let otherstart = CACurrentMediaTime()
+let j = JSON.parse(example2Data)
+let otherend = CACurrentMediaTime()
+print("\(otherend - otherstart)")
 
 if let dict = try JSONSerialization.jsonObject(with: (contentData), options: []) as? Dictionary<String, Any> {
     let s = CACurrentMediaTime()
@@ -64,5 +64,5 @@ if let dict = try JSONSerialization.jsonObject(with: (contentData), options: [])
     let ss = CACurrentMediaTime()
     jjj.main.wind.deg.intValue
     let ee = CACurrentMediaTime()
-    print("\(Double(ee - ss))")
+    print("\(ee - ss)")
 }

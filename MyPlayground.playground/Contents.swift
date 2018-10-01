@@ -23,7 +23,6 @@ let contentData = FileManager.default.contents(atPath: filePath)!
 let content = String(data: contentData, encoding: .utf8)!
 
 let start = CACurrentMediaTime()
-//let json = JSON.any(example).json
 let json = JSON.parse(content)
 let end = CACurrentMediaTime()
 print("\(end - start)")
@@ -36,8 +35,8 @@ let e: Array<Any> = json.base
 let isAdmin: Bool = json.isAdmin
 let isAdminString: String = json.isAdmin
 let isAdminJSON = json.isAdmin
-let updateDate: Date = json.updatedAt
-let createDate: Date = json.createAt
+let updateDate = json.updatedAt
+let createDate = json.createAt
 let updateDateString: String = json.updatedAt
 json.name
 json.isAdmin.bool

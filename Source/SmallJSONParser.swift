@@ -8,7 +8,7 @@ public enum JSON {
     case intValue(Int)
     case boolValue(Bool)
     case doubleValue(Double)
-    case dateValue(Date)
+//    case dateValue(Date)
     case dictionary(Dictionary<String, Any>)
     case array(Array<Any>)
     case null
@@ -111,8 +111,8 @@ extension JSON {
                 return (value as! Dictionary<String, Any>).refmerToJSON()
             case is Bool:
                 return (value as! Bool).refmerToJSON()
-            case is Date:
-                return (value as! Date).refmerToJSON()
+//            case is Date:
+//                return (value as! Date).refmerToJSON()
             default:
                 return JSON.null
             }
@@ -201,32 +201,32 @@ extension JSON {
     }
 }
 
-@available(iOS 10.0, tvOS 11.0, OSX 10.13, *)
-extension JSON {
-    public var date: Date? {
-        if case .dateValue(let value) = self {
-            return value
-        }
-        if let str = string {
-            let formatter = ISO8601DateFormatter()
-            if let date = formatter.date(from: str) {
-                return date
-            }
-            if #available(iOS 11.0, *) {
-                formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
-            } else {
-                formatter.formatOptions = [.withInternetDateTime]
-            }
-            if let date = formatter.date(from: str) {
-                return date
-            }
-        }
-        return nil
-    }
-    public var dateValue: Date {
-        return date ?? Date()
-    }
-}
+//@available(iOS 10.0, tvOS 11.0, OSX 10.13, *)
+//extension JSON {
+//    public var date: Date? {
+//        if case .dateValue(let value) = self {
+//            return value
+//        }
+//        if let str = string {
+//            let formatter = ISO8601DateFormatter()
+//            if let date = formatter.date(from: str) {
+//                return date
+//            }
+//            if #available(iOS 11.0, *) {
+//                formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+//            } else {
+//                formatter.formatOptions = [.withInternetDateTime]
+//            }
+//            if let date = formatter.date(from: str) {
+//                return date
+//            }
+//        }
+//        return nil
+//    }
+//    public var dateValue: Date {
+//        return date ?? Date()
+//    }
+//}
 
 extension JSON {
     public var array: Array<Any>? {
@@ -334,21 +334,21 @@ extension Data: CanReformToJSONType {
     }
 }
 
-extension Date: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> Date {
-        if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
-            return json.dateValue
-        } else {
-            if let timestamp = json.int {
-                return Date(timeIntervalSince1970: Double(timestamp))
-            }
-            if let timestampWithSecond = json.double {
-                return Date(timeIntervalSince1970: timestampWithSecond)
-            }
-            return Date()
-        }
-    }
-    public func refmerToJSON() -> JSON {
-        return JSON.dateValue(self)
-    }
-}
+//extension Date: CanReformToJSONType {
+//    public static func refmerWith(json: JSON) -> Date {
+//        if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
+//            return json.dateValue
+//        } else {
+//            if let timestamp = json.int {
+//                return Date(timeIntervalSince1970: Double(timestamp))
+//            }
+//            if let timestampWithSecond = json.double {
+//                return Date(timeIntervalSince1970: timestampWithSecond)
+//            }
+//            return Date()
+//        }
+//    }
+//    public func refmerToJSON() -> JSON {
+//        return JSON.dateValue(self)
+//    }
+//}

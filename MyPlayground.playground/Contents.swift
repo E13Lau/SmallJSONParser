@@ -42,7 +42,7 @@ json.name
 json.isAdmin.bool
 json.main.wind.deg.intValue
 json.main.stringValue
-print(json.weather)
+json.weather.arrayValue.map({ $0.id.stringValue })
 
 
 let example2Path = Bundle.main.path(forResource: "example2", ofType: "json")!
@@ -54,7 +54,7 @@ print("\(otherend - otherstart)")
 
 if let dict = try JSONSerialization.jsonObject(with: (contentData), options: []) as? Dictionary<String, Any> {
     let s = CACurrentMediaTime()
-    let jjj = JSON.dictionary(dict)
+    let jjj = JSON.dictionaryValue(dict)
     let e = CACurrentMediaTime()
     print("\(e - s)")
     jjj.name

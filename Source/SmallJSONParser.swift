@@ -9,8 +9,10 @@ public enum JSON {
     case boolValue(Bool)
     case doubleValue(Double)
 //    case dateValue(Date)
-    case dictionary(Dictionary<String, Any>)
-    case array(Array<Any>)
+    case dictionaryValue(Dictionary<String, Any>)
+    case arrayValue(Array<Any>)
+    case dictionary(Dictionary<String, JSON>)
+    case array(Array<JSON>)
     case null
 }
 
@@ -42,30 +44,76 @@ extension JSON {
     public static func parse(_ jsonDictinary: Dictionary<String, Any>) -> JSON {
         return jsonDictinary.toJSON()
     }
+    
+    fileprivate static func parse(value: Any) -> JSON {
+        switch value {
+        case is Dictionary<String, JSON>:
+            return JSON.dictionary(value as! Dictionary<String, JSON>)
+        case is Array<JSON>:
+            return JSON.array(value as! Array<JSON>)
+        case is Data:
+            if let dict = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) as? Dictionary<String, Any> {
+                return JSON.parse(value:dict as Any)
+            }
+            if let array = try? JSONSerialization.jsonObject(with: (value as! Data), options: []) as? Array<Any> {
+                return JSON.parse(value:array as Any)
+            }
+            return JSON.any(value)
+        case is Dictionary<String, Any>:
+            let dict = value as! Dictionary<String, Any>
+            let d = dict.mapValues({ JSON.parse(value: $0) })
+            return JSON.parse(value: d)
+        case is Array<Any>:
+            let arr = (value as! Array<Any>).map({ JSON.parse(value: $0) })
+            return JSON.parse(value:arr)
+        case is Int:
+            return JSON.intValue(value as! Int)
+        case is String:
+            return JSON.stringValue(value as! String)
+        case is Bool:
+            return JSON.boolValue(value as! Bool)
+        case is Double:
+            return JSON.doubleValue(value as! Double)
+        default:
+            return JSON.any(value)
+        }
+    }
 }
 
 extension JSON {
     public subscript(index: Int) -> JSON {
-        if case .array(let arr) = self {
+        if case .arrayValue(let arr) = self {
             guard index < arr.count else { return JSON.null }
             let value = arr[index]
             return JSON.any(value).jsonValue
+        }
+        if case .array(let arr) = self {
+            guard index < arr.count else { return JSON.null }
+            return arr[index]
         }
         return JSON.null
     }
     
     public subscript(key: String) -> JSON {
-        if case .dictionary(let dict) = self {
+        if case .dictionaryValue(let dict) = self {
             guard let value = dict[key] else { return JSON.null }
             return JSON.any(value).jsonValue
+        }
+        if case .dictionary(let dict) = self {
+            guard let value = dict[key] else { return JSON.null }
+            return value
         }
         return JSON.null
     }
     
     public subscript(dynamicMember member: String) -> JSON {
-        if case .dictionary(let dict) = self {
+        if case .dictionaryValue(let dict) = self {
             guard let value = dict[member] else { return JSON.null }
             return JSON.any(value).jsonValue
+        }
+        if case .dictionary(let dict) = self {
+            guard let value = dict[member] else { return JSON.null }
+            return value
         }
         return JSON.null
     }
@@ -73,34 +121,67 @@ extension JSON {
 
 extension JSON {
     public subscript<T: CanReformToJSONType>(index: Int) -> T {
-        if case .array(let arr) = self {
+        if case .arrayValue(let arr) = self {
             guard index < arr.count else { return T.init() }
             let value = arr[index]
-            guard value is CanReformToJSONType else { return T.init() }
             return (value as? T) ?? T.init()
         }
-
+        if case .array(let arr) = self {
+            guard index < arr.count else { return T.init() }
+            guard let value = arr[index].value() as? T else { return T.init() }
+            return value
+        }
         return T.init()
     }
     
     public subscript<T: CanReformToJSONType>(key: String) -> T {
-        if case .dictionary(let dict) = self {
+        if case .dictionaryValue(let dict) = self {
             guard let value = dict[key] else { return T.init() }
             return (value as? T) ?? T.init()
+        }
+        if case .dictionary(let dict) = self {
+            guard let json = dict[key] else { return T.init() }
+            guard let value = json.value() as? T else { return T.init() }
+            return value
         }
         return T.init()
     }
     
     public subscript<T: CanReformToJSONType>(dynamicMember member: String) -> T {
-        if case .dictionary(let dict) = self {
+        if case .dictionaryValue(let dict) = self {
             guard let value = dict[member] else { return T.init() }
             return (value as? T) ?? T.init()
+        }
+        if case .dictionary(let dict) = self {
+            guard let json = dict[member] else { return T.init() }
+            guard let value = json.value() as? T else { return T.init() }
+            return value
         }
         return T.init()
     }
 }
 
 extension JSON {
+    public func value() -> Any? {
+        switch self {
+        case .boolValue(let value):
+            return value
+        case .intValue(let value):
+            return value
+        case .stringValue(let value):
+            return value
+        case .doubleValue(let value):
+            return value
+        case .dataValue(let value):
+            return value
+        case .arrayValue(let value):
+            return value
+        case .dictionaryValue(let value):
+            return value
+        default:
+            return nil
+        }
+    }
     public var jsonValue: JSON {
         switch self {
         case .any(let value):
@@ -124,10 +205,14 @@ extension JSON {
             default:
                 return JSON.null
             }
-        case .dictionary(let value):
+        case .dictionaryValue(let value):
             return value.toJSON()
-        case .array(let value):
+        case .dictionary(_):
+            return self
+        case .arrayValue(let value):
             return value.toJSON()
+        case .array(_):
+            return self
         case .stringValue(let value):
             if let data = (value).data(using: .utf8) {
                 return JSON.any(data).jsonValue
@@ -237,13 +322,16 @@ extension JSON {
 //}
 
 extension JSON {
-    public var array: Array<Any>? {
+    public var array: Array<JSON>? {
         if case .array(let value) = self {
             return value
         }
+        if case .arrayValue(let value) = self {
+            return JSON.parse(value: value).array
+        }
         return nil
     }
-    public var arrayValue: Array<Any> {
+    public var arrayValue: Array<JSON> {
         return array ?? []
     }
 }
@@ -261,13 +349,16 @@ extension JSON {
 }
 
 extension JSON {
-    public var dictionary: Dictionary<String, Any>? {
+    public var dictionary: Dictionary<String, JSON>? {
         if case .dictionary(let dict) = self {
             return dict
         }
+        if case .dictionaryValue(let dict) = self {
+            return JSON.parse(value: dict).dictionary
+        }
         return nil
     }
-    public var dictionaryValue: Dictionary<String, Any> {
+    public var dictionaryValue: Dictionary<String, JSON> {
         return dictionary ?? [:]
     }
 }
@@ -277,6 +368,7 @@ public protocol CanReformToJSONType {
     static func reformWith(json: JSON) -> Self
     func toJSON() -> JSON
 }
+
 extension Int: CanReformToJSONType {
     public func toJSON() -> JSON {
         return JSON.intValue(self)
@@ -307,7 +399,7 @@ extension String: CanReformToJSONType {
 
 extension Array: CanReformToJSONType where Element == Any {
     public func toJSON() -> JSON {
-        return JSON.array(self)
+        return JSON.arrayValue(self)
     }
     
     public static func reformWith(json: JSON) -> Array<Element> {
@@ -317,7 +409,7 @@ extension Array: CanReformToJSONType where Element == Any {
 
 extension Dictionary: CanReformToJSONType where Value == Any, Key == String {
     public func toJSON() -> JSON {
-        return JSON.dictionary(self)
+        return JSON.dictionaryValue(self)
     }
     
     public static func reformWith(json: JSON) -> Dictionary<Key, Value> {

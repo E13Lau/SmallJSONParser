@@ -35,6 +35,16 @@ class SmallJSONParserTests: XCTestCase {
 """
         let json = JSON.parse(example)
         
+        for (index, item) in json.weather.arrayValue.enumerated() {
+            if index == 0 {
+                XCTAssertEqual(item.id.intValue, 520)
+                XCTAssertEqual(item.icon.stringValue, "09d")
+            }
+            if index == 1 {
+                XCTAssertEqual(item.id.intValue, 701)
+                XCTAssertEqual(item.icon.stringValue, "50d")
+            }
+        }
         XCTAssertEqual(json.coord.lon.doubleValue, 116.4)
         XCTAssertEqual(json.weather[0].id.intValue, 520)
         XCTAssertEqual(json.base.stringValue, "stations")

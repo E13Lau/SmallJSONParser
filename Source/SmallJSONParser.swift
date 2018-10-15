@@ -26,13 +26,21 @@ extension JSON {
     public static func parse(_ jsonData: Data) -> JSON {
         if let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []) {
             if let dict = jsonObject as? Dictionary<String, Any> {
-                return dict.refmerToJSON()
+                return JSON.parse(dict)
             }
             if let arr = jsonObject as? Array<Any> {
-                return arr.refmerToJSON()
+                return JSON.parse(arr)
             }
         }
         return JSON.null
+    }
+    
+    public static func parse(_ jsonArray: Array<Any>) -> JSON {
+        return jsonArray.toJSON()
+    }
+    
+    public static func parse(_ jsonDictinary: Dictionary<String, Any>) -> JSON {
+        return jsonDictinary.toJSON()
     }
 }
 
@@ -98,33 +106,33 @@ extension JSON {
         case .any(let value):
             switch value {
             case is Int:
-                return (value as! Int).refmerToJSON()
+                return (value as! Int).toJSON()
             case is String:
-                return (value as! String).refmerToJSON()
+                return (value as! String).toJSON()
             case is Data:
-                return (value as! Data).refmerToJSON()
+                return (value as! Data).toJSON()
             case is Double:
-                return (value as! Double).refmerToJSON()
+                return (value as! Double).toJSON()
             case is Array<Any>:
-                return (value as! Array<Any>).refmerToJSON()
+                return (value as! Array<Any>).toJSON()
             case is Dictionary<String, Any>:
-                return (value as! Dictionary<String, Any>).refmerToJSON()
+                return (value as! Dictionary<String, Any>).toJSON()
             case is Bool:
-                return (value as! Bool).refmerToJSON()
+                return (value as! Bool).toJSON()
 //            case is Date:
-//                return (value as! Date).refmerToJSON()
+//                return (value as! Date).reformToJSON()
             default:
                 return JSON.null
             }
         case .dictionary(let value):
-            return value.refmerToJSON()
+            return value.toJSON()
         case .array(let value):
-            return value.refmerToJSON()
+            return value.toJSON()
         case .stringValue(let value):
             if let data = (value).data(using: .utf8) {
                 return JSON.any(data).jsonValue
             }
-            return value.refmerToJSON()
+            return value.toJSON()
         case .dataValue(let value):
             return JSON.any(value).jsonValue
         default: return self
@@ -266,76 +274,78 @@ extension JSON {
 
 public protocol CanReformToJSONType {
     init()
-    static func refmerWith(json: JSON) -> Self
-    func refmerToJSON() -> JSON
+    static func reformWith(json: JSON) -> Self
+    func toJSON() -> JSON
 }
 extension Int: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> Int {
-        return json.intValue
+    public func toJSON() -> JSON {
+        return JSON.intValue(self)
     }
     
-    public func refmerToJSON() -> JSON {
-        return JSON.intValue(self)
+    public static func reformWith(json: JSON) -> Int {
+        return json.intValue
     }
 }
 extension Double: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> Double {
-        return json.doubleValue
+    public func toJSON() -> JSON {
+        return JSON.doubleValue(self)
     }
     
-    public func refmerToJSON() -> JSON {
-        return JSON.doubleValue(self)
+    public static func reformWith(json: JSON) -> Double {
+        return json.doubleValue
     }
 }
 extension String: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> String {
-        return json.stringValue
-    }
-    
-    public func refmerToJSON() -> JSON {
+    public func toJSON() -> JSON {
         return JSON.stringValue(self)
     }
-}
-extension Array: CanReformToJSONType where Element == Any {
-    public static func refmerWith(json: JSON) -> Array<Element> {
-        return json.arrayValue
-    }
     
-    public func refmerToJSON() -> JSON {
+    public static func reformWith(json: JSON) -> String {
+        return json.stringValue
+    }
+}
+
+extension Array: CanReformToJSONType where Element == Any {
+    public func toJSON() -> JSON {
         return JSON.array(self)
     }
+    
+    public static func reformWith(json: JSON) -> Array<Element> {
+        return json.arrayValue
+    }
 }
+
 extension Dictionary: CanReformToJSONType where Value == Any, Key == String {
-    public static func refmerWith(json: JSON) -> Dictionary<Key, Value> {
-        return json.dictionaryValue
+    public func toJSON() -> JSON {
+        return JSON.dictionary(self)
     }
     
-    public func refmerToJSON() -> JSON {
-        return JSON.dictionary(self)
+    public static func reformWith(json: JSON) -> Dictionary<Key, Value> {
+        return json.dictionaryValue
     }
 }
 
 extension Bool: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> Bool {
-        return json.boolValue
+    public func toJSON() -> JSON {
+        return JSON.boolValue(self)
     }
     
-    public func refmerToJSON() -> JSON {
-        return JSON.boolValue(self)
+    public static func reformWith(json: JSON) -> Bool {
+        return json.boolValue
     }
 }
 extension Data: CanReformToJSONType {
-    public static func refmerWith(json: JSON) -> Data {
-        return json.dataValue
+    public func toJSON() -> JSON {
+        return JSON.dataValue(self)
     }
     
-    public func refmerToJSON() -> JSON {
-        return JSON.dataValue(self)
+    public static func reformWith(json: JSON) -> Data {
+        return json.dataValue
     }
 }
 
 //extension Date: CanReformToJSONType {
-//    public static func refmerWith(json: JSON) -> Date {
+//    public static func reformWith(json: JSON) -> Date {
 //        if #available(iOS 10.0, tvOS 11.0, OSX 10.13, *) {
 //            return json.dateValue
 //        } else {
@@ -348,7 +358,7 @@ extension Data: CanReformToJSONType {
 //            return Date()
 //        }
 //    }
-//    public func refmerToJSON() -> JSON {
+//    public func reformToJSON() -> JSON {
 //        return JSON.dateValue(self)
 //    }
 //}

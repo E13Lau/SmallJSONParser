@@ -43,4 +43,26 @@ class SmallJSONParserTests: XCTestCase {
         let isAdmin: Bool = json.isAdmin
         XCTAssertTrue(isAdmin)
     }
+    
+    func testArray() {
+        let example: [Any] = ["name", 0, 123, false, true]
+        
+        let json = JSON.parse(example)
+        XCTAssertEqual(json[0].stringValue, "name")
+        XCTAssertEqual(json[2].intValue, 123)
+        XCTAssertEqual(json[3].boolValue, false)
+        XCTAssertEqual(json[4].boolValue, true)
+    }
+    
+    func testDict() {
+        let example: [String: Any] = ["name": "jack",
+                                      "age": 26,
+                                      "id": 38248]
+        
+        let json = JSON.parse(example)
+        XCTAssertEqual(json.name.stringValue, "jack")
+        XCTAssertEqual(json.age.intValue, 26)
+        XCTAssertEqual(json.id.intValue, 38248)
+        XCTAssertNotEqual(json.id.intValue, 88888)
+    }
 }
